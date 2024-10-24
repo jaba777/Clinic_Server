@@ -14,7 +14,6 @@ namespace Clinic_Server.Data
         {
             this.conn = new OracleConnection();
             this.conn.ConnectionString=ConnectionString;
-            this.cmd = new OracleCommand();
         }
 
         public bool Auth(Users user)
@@ -22,11 +21,12 @@ namespace Clinic_Server.Data
 
             try
             {
-
+                this.cmd = new OracleCommand();
                 this.conn.Open();
                 this.cmd.Connection = this.conn;
                 this.cmd.CommandText = "PKG_USERS.save_users";
                 this.cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 120;
                 this.cmd.Parameters.Add("p_name", OracleDbType.Varchar2).Value = user.name;
                 this.cmd.Parameters.Add("p_surname", OracleDbType.Varchar2).Value = user.surname;
                 this.cmd.Parameters.Add("p_email", OracleDbType.Varchar2).Value = user.email;
@@ -49,7 +49,7 @@ namespace Clinic_Server.Data
             
             try
             {
-
+                this.cmd = new OracleCommand();
                 this.conn.Open();
                 this.cmd.Connection = this.conn;
                 this.cmd.CommandText = "PKG_USERS.find_user";
@@ -70,6 +70,7 @@ namespace Clinic_Server.Data
                         user.surname = reader["SURNAME"].ToString();
                         user.private_number = reader["PRIVATE_NUMBER"].ToString();
                         user.role = reader["ROLE"].ToString();
+                        user.password = reader["PASSWORD"].ToString();
                     }
                 }
                 this.conn.Close();

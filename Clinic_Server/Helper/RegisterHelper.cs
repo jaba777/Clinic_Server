@@ -25,9 +25,14 @@ namespace Clinic_Server.Helper
                 throw new ArgumentException("Password not valid");
             }
 
-            if (request.name.Length <= 5)
+            if (request.name.Length <= 4)
             {
                 throw new ArgumentException("Name not valid");
+            }
+            var userCache = await redisDb.StringGetAsync($"users:{request.email}");
+            if (userCache.HasValue)
+            {
+                await redisDb.KeyDeleteAsync($"users:{request.email}");
             }
             Random random = new Random();
             int otp = random.Next(1000, 10000);

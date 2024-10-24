@@ -3,6 +3,7 @@ using Clinic_Server.Data;
 using Clinic_Server.Helper;
 using Clinic_Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -27,6 +28,7 @@ namespace Clinic_Server
             builder.Services.AddSwaggerGen();
             builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("Redis"));
             builder.Services.AddSingleton<IRedisService, RedisService>();
+            
 
             builder.Services.AddSwaggerGen(c =>
             {

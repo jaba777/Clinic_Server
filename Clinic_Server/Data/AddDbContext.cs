@@ -7,6 +7,7 @@
         {
             //this.ConnectionString = configuration.GetConnectionString("OracleDatabase");
             this.ConnectionString = "User Id=sys;Password=jaba9293;Data Source=localhost:1521/xe;DBA Privilege=SYSDBA;";
+            
 
         }
     }
