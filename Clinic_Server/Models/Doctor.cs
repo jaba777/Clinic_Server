@@ -1,8 +1,6 @@
-﻿
-
-namespace Clinic_Server.Models
+﻿namespace Clinic_Server.Models
 {
-    public class Users
+    public class Doctor
     {
         public int? id { get; set; }
         public string? name { get; set; }
@@ -11,10 +9,8 @@ namespace Clinic_Server.Models
         public string? password { get; set; }
         public string? role { get; set; }
         public string? private_number { get; set; }
-        public int? category_id { get; set; }
-        public byte[]? photo { get; set; }  
-        public byte[]? resume { get; set; }  
-        public string? otp {  get; set; }
-        public Category? category { get; set; }
+        public string? category_id { get; set; }
+        public IFormFile? photo { get; set; }
+        public IFormFile? resume { get; set; }
     }
 }

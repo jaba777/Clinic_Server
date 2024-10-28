@@ -20,6 +20,7 @@ namespace Clinic_Server
 
             builder.Services.AddControllers();
             builder.Services.AddScoped<USER_PKG>();
+            builder.Services.AddScoped<CATEGORY_PKG>();
             builder.Services.AddScoped<AuthHelper>();
             builder.Services.AddScoped<RegisterHelper>();
             builder.Services.AddScoped<EmailService>();

@@ -2,10 +2,13 @@
 using Clinic_Server.Helper;
 using Clinic_Server.Models;
 using Clinic_Server.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
+using Org.BouncyCastle.Asn1.X509;
 using System.Text.RegularExpressions;
 
 namespace Clinic_Server.Controllers
@@ -57,6 +60,76 @@ namespace Clinic_Server.Controllers
                 }
 
                 return StatusCode(200, new { success = true, message = "Registere successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("sign-up-doctor")]
+        [Authorize]
+        async public Task<IActionResult> RegisterDoctor([FromForm] Doctor request, [FromQuery] int userId)
+        {
+            var access_token = HttpContext.Request.Headers["Authorization"].ToString()?.Substring("Bearer ".Length).Trim();
+            try
+            {
+                var verifiedToken = authHelper.VerifyJWTToken(access_token);
+
+                if (verifiedToken.role != "admin")
+                {
+                    return BadRequest("You don't permission of making this request");
+                }
+
+                if (string.IsNullOrEmpty(request.email))
+                {
+                    return BadRequest("Email is not valid");
+                }
+                var finduser = user_pkg.FindUser(request.email);
+                if (finduser != null)
+                {
+                    return BadRequest("This account is already created");
+                }
+
+                byte[] photoBytes;
+                byte[] resumeBytes;
+
+                using (var ms = new MemoryStream())
+                {
+                    await request.photo.CopyToAsync(ms);
+                    photoBytes = ms.ToArray();
+                }
+
+                using (var ms = new MemoryStream())
+                {
+                    await request.resume.CopyToAsync(ms);
+                    resumeBytes = ms.ToArray();
+                }
+                string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.password);
+
+                var user = new Users 
+                {
+                    name = request.name,
+                    surname = request.surname,
+                    email = request.email,
+                    private_number = request.private_number,
+                    password = passwordHash,
+                    category_id = int.Parse(request.category_id),
+                    photo = photoBytes,
+                    resume = resumeBytes
+                };
+
+                var result = this.user_pkg.DoctorAuth(user);
+
+                if (result)
+                {
+                    return StatusCode(200, new { success = true, message = "Registere successfully" });
+                }
+
+
+                return StatusCode(200, new { success = false, message = "Registere not successfully" });
             }
             catch (Exception ex)
             {

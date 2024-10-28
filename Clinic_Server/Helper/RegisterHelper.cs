@@ -53,6 +53,10 @@ namespace Clinic_Server.Helper
 
         async public Task<Users> verifyOtp(string email,string otp)
         {
+            if (string.IsNullOrEmpty(email))
+            {
+                throw new ArgumentException("Something went wrong");
+            }
             var redisDb = redisService.GetDatabase();
 
             var user=await redisDb.StringGetAsync($"users:{email}");
