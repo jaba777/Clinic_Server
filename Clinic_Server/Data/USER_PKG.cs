@@ -1,5 +1,6 @@
 ﻿using Clinic_Server.Models;
 using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 using Org.BouncyCastle.Asn1.Ocsp;
 using StackExchange.Redis;
 using System.Data;
@@ -119,9 +120,11 @@ namespace Clinic_Server.Data
 
   
 
-        public List<Users> FindDoctors(int categoryId,int page)
+        public DoctorResult FindDoctors(int categoryId,int page)
         {
             var users = new List<Users>();
+            int totalPages = 0;
+            int totalCount = 0;
             try
             {
                 this.cmd = new OracleCommand();
@@ -152,16 +155,73 @@ namespace Clinic_Server.Data
                         };
                         users.Add(user);
                     }
-           
-                
+                totalCount = (int)((OracleDecimal)this.cmd.Parameters["o_total_count"].Value).ToInt32();
+                totalPages = (int)((OracleDecimal)this.cmd.Parameters["o_total_pages"].Value).ToInt32();
+
+
             }
             catch (Exception ex) {
                 throw new ArgumentException($"Oracle error: {ex.Message}");
             }
 
             this.conn.Close();
-            return users;
+            return new DoctorResult
+            {
+                users = users,
+                TotalCount = totalCount,
+                TotalPages = totalPages
+            };
 
+        }
+
+        public Users getUser(int userId)
+        {
+            Users user = null;
+            try
+            {
+                this.cmd = new OracleCommand();
+                this.conn.Open();
+                this.cmd.Connection = this.conn;
+                this.cmd.CommandText = "PKG_USERS.my_profile";
+                this.cmd.CommandType = CommandType.StoredProcedure;
+                this.cmd.Parameters.Add("userId", OracleDbType.Int32).Value = userId;
+                this.cmd.Parameters.Add("p_result", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
+
+                using (var reader = this.cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        user = new Users();
+                        while (reader.Read())
+                        {
+                            user.id = reader["ID"] != DBNull.Value ? int.Parse(reader["ID"].ToString()) : 0;
+                            user.name = reader["NAME"]?.ToString();
+                            user.email = reader["EMAIL"]?.ToString();
+                            user.surname = reader["SURNAME"]?.ToString();
+                            user.photo = reader["PHOTO"] != DBNull.Value ? (byte[])reader["PHOTO"] : null;
+                            user.resume = reader["RESUME"] != DBNull.Value ? (byte[])reader["RESUME"] : null;
+                            user.role = reader["ROLE"]?.ToString();
+                            user.private_number = reader["private_number"]?.ToString();
+                            user.category = new Category
+                            {
+                                id = reader["CATID"] != DBNull.Value ? int.Parse(reader["CATID"].ToString()) : 0,
+                                name = reader["CATNAME"]?.ToString()
+                            };
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("No data found for the given userId.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Oracle error: {ex.Message}");
+                return null;
+            }
+            this.conn.Close();
+            return user;
         }
 
         public Users Myprofile(int userId)
@@ -191,6 +251,7 @@ namespace Clinic_Server.Data
                             user.photo = reader["PHOTO"] != DBNull.Value ? (byte[])reader["PHOTO"] : null;
                             user.resume = reader["RESUME"] != DBNull.Value ? (byte[])reader["RESUME"] : null;
                             user.role = reader["ROLE"]?.ToString();
+                            user.private_number = reader["private_number"]?.ToString();
                             user.category = new Category
                             {
                                 id = reader["CATID"] != DBNull.Value ? int.Parse(reader["CATID"].ToString()) : 0,

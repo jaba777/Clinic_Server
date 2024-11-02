@@ -37,8 +37,22 @@ namespace Clinic_Server.Controllers
         {
             try
             {
-                var my_profile = this.user_pkg.FindDoctors( categoryId,page);
-                return StatusCode(200, new { my_profile });
+                var result = this.user_pkg.FindDoctors( categoryId,page);
+                return StatusCode(200, new { my_profile=result.users, totalPages=result.TotalPages, totalCount=result.TotalCount });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("get-doctor")]
+        async public Task<IActionResult> GetUser(int userId)
+        {
+            try
+            {
+                var result = this.user_pkg.getUser(userId);
+                return StatusCode(200, new {user=result  });
             }
             catch (Exception ex)
             {

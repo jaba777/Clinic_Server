@@ -24,6 +24,7 @@ namespace Clinic_Server
             builder.Services.AddScoped<AuthHelper>();
             builder.Services.AddScoped<RegisterHelper>();
             builder.Services.AddScoped<EmailService>();
+            builder.Services.AddScoped<BOOKING_PKG>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

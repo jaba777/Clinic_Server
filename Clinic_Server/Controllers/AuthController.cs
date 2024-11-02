@@ -158,8 +158,9 @@ namespace Clinic_Server.Controllers
                 }
 
                 var token = authHelper.GenerateJWTToken(finduser);
+                finduser.password = null;
 
-                return StatusCode(200, new { success = true, token, userId = finduser.id, role = finduser.role,message="success" });
+                return StatusCode(200, new { success = true, token,user=finduser,message="success" });
             }
             catch (Exception ex)
             {
