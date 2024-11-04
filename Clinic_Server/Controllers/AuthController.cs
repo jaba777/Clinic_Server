@@ -80,7 +80,7 @@ namespace Clinic_Server.Controllers
 
                 if (verifiedToken.role != "admin")
                 {
-                    return BadRequest("You don't permission of making this request");
+                    return StatusCode(405, new { success = false, message = "დაფიქსირდა შეცდომა" });
                 }
 
                 if (string.IsNullOrEmpty(request.email))

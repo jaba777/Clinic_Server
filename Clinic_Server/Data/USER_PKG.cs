@@ -77,6 +77,63 @@ namespace Clinic_Server.Data
             }
 
         }
+
+        public bool UserUpdate(Users user,int userId)
+        {
+
+            try
+            {
+                this.cmd = new OracleCommand();
+                this.conn.Open();
+                this.cmd.Connection = this.conn;
+                this.cmd.CommandText = "PKG_USERS.update_user";
+                this.cmd.CommandType = CommandType.StoredProcedure;
+                this.cmd.Parameters.Add("p_name", OracleDbType.Varchar2).Value = user.name;
+                this.cmd.Parameters.Add("p_surname", OracleDbType.Varchar2).Value = user.surname;
+                this.cmd.Parameters.Add("p_email", OracleDbType.Varchar2).Value = user.email;
+                this.cmd.Parameters.Add("p_password", OracleDbType.Varchar2).Value = !string.IsNullOrEmpty(user.password) ? user.password : DBNull.Value;
+                this.cmd.Parameters.Add("p_private_number", OracleDbType.Varchar2).Value = user.private_number;
+                this.cmd.Parameters.Add("p_specialty_number", OracleDbType.Int32).Value = user.category_id;
+                this.cmd.Parameters.Add("p_photo", OracleDbType.Blob).Value = user.photo != null ? user.photo : (object)DBNull.Value;
+                this.cmd.Parameters.Add("p_resume", OracleDbType.Blob).Value = user.resume !=null ? user.resume : (object)DBNull.Value;
+                this.cmd.Parameters.Add("p_userId",OracleDbType.Int32).Value= userId;
+                this.cmd.ExecuteNonQuery();
+                this.conn.Close();
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException($"Oracle error: {ex.Message}");
+
+            }
+
+        }
+        public bool UserDelete(int userId)
+        {
+
+            try
+            {
+                this.cmd = new OracleCommand();
+                this.conn.Open();
+                this.cmd.Connection = this.conn;
+                this.cmd.CommandText = "PKG_USERS.delete_user";
+                this.cmd.CommandType = CommandType.StoredProcedure;
+                this.cmd.Parameters.Add("p_userId", OracleDbType.Int32).Value = userId;
+                this.cmd.ExecuteNonQuery();
+                this.conn.Close();
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException($"Oracle error: {ex.Message}");
+
+            }
+
+        }
         public Users FindUser(string email)
         {
 
