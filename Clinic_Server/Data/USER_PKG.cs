@@ -46,6 +46,28 @@ namespace Clinic_Server.Data
 
         }
 
+        public bool ChangePassword(string email,string password)
+        {
+            try
+            {
+                this.cmd = new OracleCommand();
+                this.conn.Open();
+                this.cmd.Connection = this.conn;
+                this.cmd.CommandText = "PKG_USERS.change_password";
+                this.cmd.CommandType = CommandType.StoredProcedure;
+                this.cmd.Parameters.Add("p_email",OracleDbType.Varchar2).Value=email;
+                this.cmd.Parameters.Add("p_password", OracleDbType.Varchar2).Value = password;
+                this.cmd.ExecuteNonQuery();
+                this.conn.Close();
+
+                return true;
+            }
+            catch (Exception ex) {
+                throw new ArgumentException($"Oracle error: {ex.Message}");
+            }
+            
+        }
+
         public bool DoctorAuth(Users user)
         {
 

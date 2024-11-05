@@ -43,13 +43,15 @@ namespace Clinic_Server.Helper
 
 
             var userJson=JsonSerializer.Serialize(request);
-            await redisDb.StringSetAsync($"users:{request.email}",userJson,TimeSpan.FromMinutes(3));
+            await redisDb.StringSetAsync($"users:{request.email}",userJson,TimeSpan.FromMinutes(2));
 
             await this.emailService.SendEmailOtp(request.email, otp.ToString(),request.name);
 
 
             return true;
         }
+
+       
 
         async public Task<Users> verifyOtp(string email,string otp)
         {
