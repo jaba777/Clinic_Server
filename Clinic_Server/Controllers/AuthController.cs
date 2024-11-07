@@ -38,7 +38,7 @@ namespace Clinic_Server.Controllers
                 var finduser = user_pkg.FindUser(request.email);
                 if (finduser != null)
                 {
-                    return BadRequest("This account is already created");
+                    return StatusCode(401,new {message= "ამ მეილით ექაუნთი უკვე შექმნილია",success=false });
                 }
 
                 if (string.IsNullOrEmpty(request.otp))
@@ -51,15 +51,15 @@ namespace Clinic_Server.Controllers
                     if (verifyUser != null)
                     {
                         var createUser = this.user_pkg.Auth(verifyUser);
-                        return StatusCode(200, new { success = createUser, message = "Registered successfully", email = request.email,isRegistered=true });
+                        return StatusCode(200, new { success = createUser, message = "რეგისტრაცია წარმატებულია", email = request.email,isRegistered=true });
                     }
                     else
                     {
-                        return BadRequest("OTP verification failed.");
+                        return StatusCode(403,new { message="ვერიფიკაცია წარუმატებელია, სცადეთ თავიდან", success = false });
                     }
                 }
 
-                return StatusCode(200, new { success = true, message = "Registere successfully" });
+                return StatusCode(200, new { success = true, message = "რეგისტრაცია წარმატებულია" });
             }
             catch (Exception ex)
             {
@@ -85,12 +85,12 @@ namespace Clinic_Server.Controllers
 
                 if (string.IsNullOrEmpty(request.email))
                 {
-                    return BadRequest("Email is not valid");
+                    return StatusCode(402, new { message = "მეილი არავალიდურია", success = false });
                 }
                 var finduser = user_pkg.FindUser(request.email);
                 if (finduser != null)
                 {
-                    return BadRequest("This account is already created");
+                    return StatusCode(401, new { message = "ამ მეილით ექაუნთი უკვე შექმნილია", success = false });
                 }
 
                 byte[] photoBytes;
@@ -125,11 +125,11 @@ namespace Clinic_Server.Controllers
 
                 if (result)
                 {
-                    return StatusCode(200, new { success = true, message = "Registere successfully" });
+                    return StatusCode(200, new { success = true, message = "რეგისტრაცია წარმატებულია" });
                 }
 
 
-                return StatusCode(200, new { success = false, message = "Registere not successfully" });
+                return StatusCode(500, new { success = false, message = "რეგისტრაცია წარუმატებელია" });
             }
             catch (Exception ex)
             {
@@ -147,14 +147,14 @@ namespace Clinic_Server.Controllers
                 Users finduser = user_pkg.FindUser(request.email);
                 if (finduser == null)
                 {
-                    return StatusCode(401, new { success = false, message = "This email isn't registered" });
+                    return StatusCode(401, new { success = false, message = "მოცემული მეილი არ არის რეგისტრირებული" });
                 }
 
                 bool verified = BCrypt.Net.BCrypt.Verify(request.password, finduser.password);
 
                 if (verified!=true)
                 {
-                    return StatusCode(401, new { success = false,message= "Invalid password" });
+                    return StatusCode(401, new { success = false,message= "პაროლი არასწორია" });
                 }
 
                 var token = authHelper.GenerateJWTToken(finduser);
