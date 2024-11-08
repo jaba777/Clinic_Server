@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Clinic_Server.Models;
 using Microsoft.AspNetCore.Authorization;
 using Clinic_Server.Helper;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Clinic_Server.Controllers
 {
@@ -35,7 +36,7 @@ namespace Clinic_Server.Controllers
                     return StatusCode(401, new { success = false, message = "დაფიქსირდა შეცდომა" });
                 }
 
-                return StatusCode(200, new { book = createBook, success = true, message = "დაჯავშნა წარმატებულია" });
+                return StatusCode(200, new { book = createBook, success = true, message = "დაჯავშნა წარმატებულია", booking });
             }
             catch (Exception ex)
             {
@@ -97,7 +98,7 @@ namespace Clinic_Server.Controllers
         }
         [HttpPut("update-book/{bookId}/{userId}")]
         [Authorize]
-        async public Task<IActionResult> UpdateBook(int bookId, int userId,[FromBody] Booking booking)
+        async public Task<IActionResult> UpdateBook(int bookId, int userId,[FromBody] Booking booking, [FromQuery] int receiverId)
         {
             var access_token = HttpContext.Request.Headers["Authorization"].ToString()?.Substring("Bearer ".Length).Trim();
             try
@@ -113,10 +114,15 @@ namespace Clinic_Server.Controllers
                 {
                     return StatusCode(401, new { success = false, message = "ეს დრო უკვე დაჯავშნილი გაქვთ" });
                 }
+                var findRecieverBook = this.booking_pkg.FindBooking(booking, receiverId);
+                if (findRecieverBook.id != null)
+                {
+                    return StatusCode(401, new { success = false, message = "ეს დრო უკვე დაჯავშნილია" });
+                }
 
                 var updateBooking = this.booking_pkg.UpdateBooking(bookId, userId, booking);
 
-                return StatusCode(200, new {success=true, book=updateBooking });
+                return StatusCode(200, new {success=true, book=updateBooking,message="ჯავშანი წარმატებით შეიცვალა", booking });
             }
             catch (Exception ex) {
                 return StatusCode(500, new { message = ex.Message, success=false });

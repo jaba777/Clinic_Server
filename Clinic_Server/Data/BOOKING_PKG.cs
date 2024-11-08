@@ -195,7 +195,7 @@ namespace Clinic_Server.Data
                 this.cmd.CommandType = CommandType.StoredProcedure;
                 this.cmd.Parameters.Add("p_date", OracleDbType.Varchar2).Value = booking.date;
                 this.cmd.Parameters.Add("p_time", OracleDbType.Varchar2).Value = booking.time;
-                this.cmd.Parameters.Add("p_user_id", OracleDbType.Int32).Value = booking.user_id!=null ? booking.user_id : userId;
+                this.cmd.Parameters.Add("p_user_id", OracleDbType.Int32).Value = booking?.user_id!=null ? booking.user_id : userId;
                 this.cmd.Parameters.Add("p_result", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
                 var reader = this.cmd.ExecuteReader();
                 while (reader.Read())
