@@ -183,6 +183,7 @@ namespace Clinic_Server.Data
                         user.private_number = reader["PRIVATE_NUMBER"].ToString();
                         user.role = reader["ROLE"].ToString();
                         user.password = reader["PASSWORD"].ToString();
+                        user.photo = reader["PHOTO"] != DBNull.Value ? (byte[])reader["PHOTO"] : null;
                     }
                 }
                 this.conn.Close();
