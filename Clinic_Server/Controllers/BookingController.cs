@@ -24,8 +24,14 @@ namespace Clinic_Server.Controllers
         [Authorize]
         async public Task<IActionResult> CreateBook(Booking booking,int userId)
         {
+            var access_token = HttpContext.Request.Headers["Authorization"].ToString()?.Substring("Bearer ".Length).Trim();
             try
             {
+                var verifiedToken = authHelper.VerifyJWTToken(access_token);
+                if (verifiedToken.userId != userId && verifiedToken.role != "user")
+                {
+                    return StatusCode(401, new { message = "დაფიქსირდა შეცდომა", success = false });
+                }
                 var findBook = this.booking_pkg.FindBooking(booking, userId);
                 if (findBook.id != null) {
                     return StatusCode(401, new { success = false, message = "ეს დრო უკვე დაჯავშნილი გაქვთ" });
@@ -80,7 +86,7 @@ namespace Clinic_Server.Controllers
             try
             {
                 var verifiedToken = authHelper.VerifyJWTToken(access_token);
-                if (verifiedToken.userId != userId)
+                if (verifiedToken.userId != userId && verifiedToken.role != "admin")
                 {
                     return StatusCode(401, new { message = "დაფიქსირდა შეცდომა", success = false });
                 }
@@ -96,6 +102,33 @@ namespace Clinic_Server.Controllers
                 return StatusCode(500, new { message = ex.Message, success = false });
             }
         }
+
+        [HttpDelete("remove-books/{userId}")]
+        [Authorize]
+        async public Task<IActionResult> RemoveBooks([FromQuery] string startDate, [FromQuery] string endDate, int userId)
+        {
+            var access_token = HttpContext.Request.Headers["Authorization"].ToString()?.Substring("Bearer ".Length).Trim();
+            try
+            {
+                var verifiedToken = authHelper.VerifyJWTToken(access_token);
+                if (verifiedToken.userId != userId && verifiedToken.role != "admin")
+                {
+                    return StatusCode(401, new { message = "დაფიქსირდა შეცდომა", success = false });
+                }
+                var deleteBooks = booking_pkg.DeleteBooks(startDate, endDate, userId);
+                if (deleteBooks != true)
+                {
+                    return StatusCode(401, new { message = deleteBooks, success = false });
+                }
+
+                return StatusCode(200, new { message = "ჯავშანები წარმატებით წაიშალა", success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, success = false });
+            }
+        }
+
         [HttpPut("update-book/{bookId}/{userId}")]
         [Authorize]
         async public Task<IActionResult> UpdateBook(int bookId, int userId,[FromBody] Booking booking, [FromQuery] int receiverId)
@@ -104,7 +137,7 @@ namespace Clinic_Server.Controllers
             try
             {
                 var verifiedToken = authHelper.VerifyJWTToken(access_token);
-                if (verifiedToken.userId != userId)
+                if (verifiedToken.userId != userId && verifiedToken.role!="admin")
                 {
                     return StatusCode(401, new { message = "დაფიქსირდა შეცდომა", success = false });
                 }
