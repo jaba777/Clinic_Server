@@ -181,6 +181,28 @@ namespace Clinic_Server.Data
             return true;
         }
 
+        public bool DeleteBooks(string startDate, string endDate, int userId)
+        {
+            try
+            {
+                this.cmd = new OracleCommand();
+                this.conn.Open();
+                this.cmd.Connection = this.conn;
+                this.cmd.CommandText = "PKG_BOOKING.delete_books";
+                this.cmd.CommandType = CommandType.StoredProcedure;
+                this.cmd.Parameters.Add("p_userId", OracleDbType.Int32).Value = userId;
+                this.cmd.Parameters.Add("p_startDate", OracleDbType.Varchar2).Value = startDate;
+                this.cmd.Parameters.Add("p_endDate", OracleDbType.Varchar2).Value = endDate;
+                this.cmd.ExecuteNonQuery();
+                this.conn.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException($"Oracle error: {ex.Message}");
+            }
+            return true;
+        }
+
 
 
         public Booking FindBooking(Booking booking,int userId)
