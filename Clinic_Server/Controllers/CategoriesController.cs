@@ -9,9 +9,11 @@ namespace Clinic_Server.Controllers
     public class CategoriesController : ControllerBase
     {
         CATEGORY_PKG category_pkg;
-        public CategoriesController(CATEGORY_PKG category_pkg)
+        private readonly ILogger<CategoriesController> _logger;
+        public CategoriesController(CATEGORY_PKG category_pkg, ILogger<CategoriesController> logger)
         {
             this.category_pkg = category_pkg;
+            this._logger = logger;
         }
 
         [HttpGet("find-category")]
@@ -23,8 +25,9 @@ namespace Clinic_Server.Controllers
                 var result = this.category_pkg.FindCategory(search, int.Parse(page));
                 return StatusCode(200, new {result,page=int.Parse(page)});
             }
-            catch (Exception ex) { 
-            return StatusCode(500,ex.Message);
+            catch (Exception ex) {
+                _logger.LogError(ex.Message);
+                return StatusCode(500,ex.Message);
             }
         }
 
@@ -39,6 +42,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, ex.Message);
             }
         }

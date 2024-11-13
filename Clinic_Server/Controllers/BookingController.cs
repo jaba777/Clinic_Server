@@ -5,6 +5,7 @@ using Clinic_Server.Models;
 using Microsoft.AspNetCore.Authorization;
 using Clinic_Server.Helper;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.Logging;
 
 namespace Clinic_Server.Controllers
 {
@@ -14,10 +15,12 @@ namespace Clinic_Server.Controllers
     {
         BOOKING_PKG booking_pkg;
         private AuthHelper authHelper;
-        public BookingController(BOOKING_PKG booking_pkg, AuthHelper authHelper)
+        private readonly ILogger<BookingController> _logger;
+        public BookingController(BOOKING_PKG booking_pkg, AuthHelper authHelper, ILogger<BookingController> logger)
         {
             this.booking_pkg = booking_pkg;
             this.authHelper = authHelper;
+            _logger = logger;
         }
 
         [HttpPost("add-booking")]
@@ -42,10 +45,12 @@ namespace Clinic_Server.Controllers
                     return StatusCode(401, new { success = false, message = "დაფიქსირდა შეცდომა" });
                 }
 
+                _logger.LogInformation("Booking created successfully: {@BookingDetails}", createBook);
                 return StatusCode(200, new { book = createBook, success = true, message = "დაჯავშნა წარმატებულია", booking });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
@@ -99,6 +104,7 @@ namespace Clinic_Server.Controllers
                 return StatusCode(200, new { message = "ჯავშანი წარმატებით წაიშალა", success = deleteBook });
             }
             catch (Exception ex) {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, new { message = ex.Message, success = false });
             }
         }
@@ -125,6 +131,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, new { message = ex.Message, success = false });
             }
         }
@@ -158,6 +165,7 @@ namespace Clinic_Server.Controllers
                 return StatusCode(200, new {success=true, book=updateBooking,message="ჯავშანი წარმატებით შეიცვალა", booking });
             }
             catch (Exception ex) {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, new { message = ex.Message, success=false });
             }
         }

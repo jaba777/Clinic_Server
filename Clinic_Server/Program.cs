@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 
 namespace Clinic_Server
@@ -14,10 +15,13 @@ namespace Clinic_Server
     {
         public static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                 .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
+                 .CreateLogger();
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
+            builder.Host.UseSerilog();
             builder.Services.AddControllers();
             builder.Services.AddScoped<USER_PKG>();
             builder.Services.AddScoped<CATEGORY_PKG>();

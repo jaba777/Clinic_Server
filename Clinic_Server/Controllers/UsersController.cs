@@ -22,12 +22,14 @@ namespace Clinic_Server.Controllers
         private AuthHelper authHelper;
         private IRedisService redisService;
         private EmailService emailService;
-        public UsersController(USER_PKG user_pkg, AuthHelper authHelper, IRedisService redisService, EmailService emailService)
+        private readonly ILogger<UsersController> _logger;
+        public UsersController(USER_PKG user_pkg, AuthHelper authHelper, IRedisService redisService, EmailService emailService, ILogger<UsersController> logger)
         {
             this.user_pkg = user_pkg;
             this.authHelper = authHelper;
             this.redisService = redisService;
             this.emailService = emailService;
+            this._logger = logger;
         }
 
         [HttpGet("my-profile")]
@@ -41,6 +43,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -55,6 +58,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -69,6 +73,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -138,6 +143,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -162,6 +168,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -196,6 +203,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, new { success = false, mesage = ex.Message });
             }
 
@@ -229,6 +237,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, new { success = false, mesage = ex.Message });
             }
 
@@ -263,6 +272,7 @@ namespace Clinic_Server.Controllers
                 return StatusCode(200, new { success = changePassword, message = "პაროლი წარმატებით შეიცვალა" });
             }
             catch (Exception ex) {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, new { success = false, mesage = ex.Message });
             }
         }

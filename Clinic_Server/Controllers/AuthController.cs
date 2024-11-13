@@ -22,12 +22,14 @@ namespace Clinic_Server.Controllers
         private AuthHelper authHelper;
         private IRedisService redisService;
         private RegisterHelper registerHelper;
-        public AuthController(USER_PKG user_pkg, IRedisService redisService, RegisterHelper registerHelper, AuthHelper authHelper)
+        private readonly ILogger<AuthController> _logger;
+        public AuthController(USER_PKG user_pkg, IRedisService redisService, RegisterHelper registerHelper, AuthHelper authHelper, ILogger<AuthController> logger)
         {
             this.user_pkg = user_pkg;
             this.redisService = redisService;
             this.registerHelper = registerHelper;
             this.authHelper = authHelper;
+            _logger = logger;
         }
 
         [HttpPost("sign-up")]
@@ -63,6 +65,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, ex.Message);
             }
 
@@ -133,6 +136,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, ex.Message);
             }
 
@@ -164,6 +168,7 @@ namespace Clinic_Server.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, ex.Message);
             }
 
