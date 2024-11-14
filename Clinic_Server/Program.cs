@@ -16,8 +16,10 @@ namespace Clinic_Server
         public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-                 .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
-                 .CreateLogger();
+               .ReadFrom.Configuration(new ConfigurationBuilder()
+                   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                   .Build())
+               .CreateLogger();
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
