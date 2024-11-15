@@ -46,7 +46,7 @@ namespace Clinic_Server.Controllers
                 if (string.IsNullOrEmpty(request.otp))
                 {
                     var registerUser = await this.registerHelper.Register(request);
-                    return StatusCode(200, new { success = true,message="check Email",email=request.email, isRegistered = false });
+                    return StatusCode(200, new { success = true,message="შეამოწმეთ მეილი",email=request.email, isRegistered = false });
                 } else if (!string.IsNullOrEmpty(request.otp))
                 {
                     Users verifyUser = await this.registerHelper.verifyOtp(request.email,request.otp);
@@ -66,7 +66,7 @@ namespace Clinic_Server.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new { message = ex.Message, success = false });
             }
 
         }
@@ -137,7 +137,7 @@ namespace Clinic_Server.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new { message = ex.Message, success = false });
             }
 
         }
@@ -169,7 +169,7 @@ namespace Clinic_Server.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new { message = ex.Message, success = false });
             }
 
         }
