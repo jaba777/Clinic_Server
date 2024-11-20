@@ -36,6 +36,7 @@ namespace Clinic_Server
             builder.Services.AddSwaggerGen();
             builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("Redis"));
             builder.Services.AddSingleton<IRedisService, RedisService>();
+
             
 
             builder.Services.AddSwaggerGen(c =>
@@ -89,6 +90,7 @@ namespace Clinic_Server
             });
 
             builder.Services.AddAuthorization();
+            builder.Services.AddHttpClient();
 
             var app = builder.Build();
 
@@ -100,6 +102,7 @@ namespace Clinic_Server
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

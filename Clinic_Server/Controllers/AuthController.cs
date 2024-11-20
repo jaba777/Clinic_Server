@@ -3,13 +3,8 @@ using Clinic_Server.Helper;
 using Clinic_Server.Models;
 using Clinic_Server.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Ocsp;
-using Org.BouncyCastle.Asn1.X509;
-using System.Text.RegularExpressions;
+using Google.Apis.Auth;
 
 namespace Clinic_Server.Controllers
 {
@@ -23,13 +18,17 @@ namespace Clinic_Server.Controllers
         private IRedisService redisService;
         private RegisterHelper registerHelper;
         private readonly ILogger<AuthController> _logger;
-        public AuthController(USER_PKG user_pkg, IRedisService redisService, RegisterHelper registerHelper, AuthHelper authHelper, ILogger<AuthController> logger)
+        private readonly IHttpClientFactory _httpClientFactory;
+   
+        public AuthController(USER_PKG user_pkg, IRedisService redisService, RegisterHelper registerHelper, AuthHelper authHelper, ILogger<AuthController> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             this.user_pkg = user_pkg;
             this.redisService = redisService;
             this.registerHelper = registerHelper;
             this.authHelper = authHelper;
             _logger = logger;
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
         }
 
         [HttpPost("sign-up")]
@@ -40,24 +39,25 @@ namespace Clinic_Server.Controllers
                 var finduser = user_pkg.FindUser(request.email);
                 if (finduser != null)
                 {
-                    return StatusCode(401,new {message= "ამ მეილით ექაუნთი უკვე შექმნილია",success=false });
+                    return StatusCode(401, new { message = "ამ მეილით ექაუნთი უკვე შექმნილია", success = false });
                 }
 
                 if (string.IsNullOrEmpty(request.otp))
                 {
                     var registerUser = await this.registerHelper.Register(request);
-                    return StatusCode(200, new { success = true,message="შეამოწმეთ მეილი",email=request.email, isRegistered = false });
-                } else if (!string.IsNullOrEmpty(request.otp))
+                    return StatusCode(200, new { success = true, message = "შეამოწმეთ მეილი", email = request.email, isRegistered = false });
+                }
+                else if (!string.IsNullOrEmpty(request.otp))
                 {
-                    Users verifyUser = await this.registerHelper.verifyOtp(request.email,request.otp);
+                    Users verifyUser = await this.registerHelper.verifyOtp(request.email, request.otp);
                     if (verifyUser != null)
                     {
                         var createUser = this.user_pkg.Auth(verifyUser);
-                        return StatusCode(200, new { success = createUser, message = "რეგისტრაცია წარმატებულია", email = request.email,isRegistered=true });
+                        return StatusCode(200, new { success = createUser, message = "რეგისტრაცია წარმატებულია", email = request.email, isRegistered = true });
                     }
                     else
                     {
-                        return StatusCode(403,new { message="ვერიფიკაცია წარუმატებელია, სცადეთ თავიდან", success = false });
+                        return StatusCode(403, new { message = "ვერიფიკაცია წარუმატებელია, სცადეთ თავიდან", success = false });
                     }
                 }
 
@@ -112,7 +112,7 @@ namespace Clinic_Server.Controllers
                 }
                 string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.password);
 
-                var user = new Users 
+                var user = new Users
                 {
                     name = request.name,
                     surname = request.surname,
@@ -156,15 +156,15 @@ namespace Clinic_Server.Controllers
 
                 bool verified = BCrypt.Net.BCrypt.Verify(request.password, finduser.password);
 
-                if (verified!=true)
+                if (verified != true)
                 {
-                    return StatusCode(401, new { success = false,message= "პაროლი არასწორია" });
+                    return StatusCode(401, new { success = false, message = "პაროლი არასწორია" });
                 }
 
                 var token = authHelper.GenerateJWTToken(finduser);
                 finduser.password = null;
 
-                return StatusCode(200, new { success = true, token,user=finduser,message="success" });
+                return StatusCode(200, new { success = true, token, user = finduser, message = "success" });
             }
             catch (Exception ex)
             {
@@ -173,5 +173,45 @@ namespace Clinic_Server.Controllers
             }
 
         }
+
+        [HttpPost("google-login")]
+        async public Task<IActionResult> GoogleLogin(GoogleLoginDto request)
+        {
+            try
+            {
+                var idToken = request.idToken;
+                var settings = new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { _configuration["Google:ClientId"] }
+                };
+                var result = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+                if(result is null)
+                {
+                    return StatusCode(402, new { message = "დაფიქსირდა შეცდომა", success = false });
+                }
+
+                Users finduser = user_pkg.FindUser(result.Email);
+                if (finduser == null || finduser.id == null)
+                {
+                    return StatusCode(401, new { success = false, message = "მოცემული მეილი არ არის რეგისტრირებული" });
+                }
+
+
+                var token = authHelper.GenerateJWTToken(finduser);
+                finduser.password = null;
+
+                return StatusCode(200, new { success = true, token, user = finduser, message = "success" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating ID token.");
+                return StatusCode(500, new { message = ex.Message, success = false });
+            }
+
+        }
+
+
+
+
     }
 }
