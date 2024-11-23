@@ -16,8 +16,10 @@ namespace Clinic_Server
         public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-                 .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
-                 .CreateLogger();
+               .ReadFrom.Configuration(new ConfigurationBuilder()
+                   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                   .Build())
+               .CreateLogger();
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -34,6 +36,7 @@ namespace Clinic_Server
             builder.Services.AddSwaggerGen();
             builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("Redis"));
             builder.Services.AddSingleton<IRedisService, RedisService>();
+
             
 
             builder.Services.AddSwaggerGen(c =>
@@ -87,6 +90,7 @@ namespace Clinic_Server
             });
 
             builder.Services.AddAuthorization();
+            builder.Services.AddHttpClient();
 
             var app = builder.Build();
 
@@ -98,6 +102,7 @@ namespace Clinic_Server
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

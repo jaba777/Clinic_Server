@@ -61,6 +61,7 @@ namespace Clinic_Server.Controllers
             try
             {
                 var books = this.booking_pkg.GetBooks(startDate, endDate, doctorId);
+                _logger.LogInformation("Booking: {@BookingDetails}",books);
 
                 return StatusCode(200, new { books, success = true });
             }
