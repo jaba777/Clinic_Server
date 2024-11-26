@@ -1,6 +1,7 @@
 ﻿using Clinic_Server.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Clinic_Server.Services;
 
 namespace Clinic_Server.Controllers
 {
@@ -8,12 +9,13 @@ namespace Clinic_Server.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        CATEGORY_PKG category_pkg;
+       
         private readonly ILogger<CategoriesController> _logger;
-        public CategoriesController(CATEGORY_PKG category_pkg, ILogger<CategoriesController> logger)
+        CategoryService categoryService;
+        public CategoriesController(ILogger<CategoriesController> logger, CategoryService categoryService)
         {
-            this.category_pkg = category_pkg;
             this._logger = logger;
+            this.categoryService = categoryService;
         }
 
         [HttpGet("find-category")]
@@ -21,8 +23,7 @@ namespace Clinic_Server.Controllers
         {
             try
             {
-
-                var result = this.category_pkg.FindCategory(search, int.Parse(page));
+                var result = await this.categoryService.FindCategories(search, int.Parse(page));
                 return StatusCode(200, new {result,page=int.Parse(page)});
             }
             catch (Exception ex) {
@@ -36,8 +37,7 @@ namespace Clinic_Server.Controllers
         {
             try
             {
-
-                var result = this.category_pkg.AllCategory();
+                var result = await this.categoryService.AllCategories();
                 return StatusCode(200, new { result });
             }
             catch (Exception ex)

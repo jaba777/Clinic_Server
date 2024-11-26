@@ -19,8 +19,9 @@ namespace Clinic_Server.Controllers
         private RegisterHelper registerHelper;
         private readonly ILogger<AuthController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
-   
-        public AuthController(USER_PKG user_pkg, IRedisService redisService, RegisterHelper registerHelper, AuthHelper authHelper, ILogger<AuthController> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        private AuthService authService;
+
+        public AuthController(USER_PKG user_pkg, IRedisService redisService, RegisterHelper registerHelper, AuthHelper authHelper, ILogger<AuthController> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration, AuthService authService)
         {
             this.user_pkg = user_pkg;
             this.redisService = redisService;
@@ -29,6 +30,7 @@ namespace Clinic_Server.Controllers
             _logger = logger;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
+            this.authService = authService;
         }
 
         [HttpPost("sign-up")]
@@ -86,45 +88,7 @@ namespace Clinic_Server.Controllers
                     return StatusCode(405, new { success = false, message = "დაფიქსირდა შეცდომა" });
                 }
 
-                if (string.IsNullOrEmpty(request.email))
-                {
-                    return StatusCode(402, new { message = "მეილი არავალიდურია", success = false });
-                }
-                var finduser = user_pkg.FindUser(request.email);
-                if (finduser != null)
-                {
-                    return StatusCode(401, new { message = "ამ მეილით ექაუნთი უკვე შექმნილია", success = false });
-                }
-
-                byte[] photoBytes;
-                byte[] resumeBytes;
-
-                using (var ms = new MemoryStream())
-                {
-                    await request.photo.CopyToAsync(ms);
-                    photoBytes = ms.ToArray();
-                }
-
-                using (var ms = new MemoryStream())
-                {
-                    await request.resume.CopyToAsync(ms);
-                    resumeBytes = ms.ToArray();
-                }
-                string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.password);
-
-                var user = new Users
-                {
-                    name = request.name,
-                    surname = request.surname,
-                    email = request.email,
-                    private_number = request.private_number,
-                    password = passwordHash,
-                    category_id = int.Parse(request.category_id),
-                    photo = photoBytes,
-                    resume = resumeBytes
-                };
-
-                var result = this.user_pkg.DoctorAuth(user);
+                var result = await this.authService.RegisterDoctor(request);
 
                 if (result)
                 {
@@ -148,21 +112,10 @@ namespace Clinic_Server.Controllers
         {
             try
             {
-                Users finduser = user_pkg.FindUser(request.email);
-                if (finduser == null)
-                {
-                    return StatusCode(401, new { success = false, message = "მოცემული მეილი არ არის რეგისტრირებული" });
-                }
-
-                bool verified = BCrypt.Net.BCrypt.Verify(request.password, finduser.password);
-
-                if (verified != true)
-                {
-                    return StatusCode(401, new { success = false, message = "პაროლი არასწორია" });
-                }
+                Users finduser = await this.authService.UserLogin(request);
 
                 var token = authHelper.GenerateJWTToken(finduser);
-                finduser.password = null;
+              
 
                 return StatusCode(200, new { success = true, token, user = finduser, message = "success" });
             }

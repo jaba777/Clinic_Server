@@ -57,16 +57,20 @@ namespace Clinic_Server.Helper
         {
             if (string.IsNullOrEmpty(email))
             {
-                throw new ArgumentException("Something went wrong");
+                throw new ArgumentException("დაფიქსირდა შეცდომა");
             }
             var redisDb = redisService.GetDatabase();
 
             var user=await redisDb.StringGetAsync($"users:{email}");
             if (user.IsNull)
             {
-                throw new ArgumentException("Time is up, Try again");
+                throw new ArgumentException("დრო ამოიწურა, სცადეთ ხელახლა");
             }
             var userObject = JsonSerializer.Deserialize<Users>(user.ToString());
+            if (userObject.otp != otp)
+            {
+                throw new ArgumentException("კოდი არასწორია");
+            }
 
             return userObject;
         }

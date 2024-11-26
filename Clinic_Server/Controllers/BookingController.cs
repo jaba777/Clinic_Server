@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Clinic_Server.Helper;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.Extensions.Logging;
+using Clinic_Server.Services;
 
 namespace Clinic_Server.Controllers
 {
@@ -13,14 +14,14 @@ namespace Clinic_Server.Controllers
     [ApiController]
     public class BookingController : ControllerBase
     {
-        BOOKING_PKG booking_pkg;
         private AuthHelper authHelper;
+        private BookingService bookingService;
         private readonly ILogger<BookingController> _logger;
-        public BookingController(BOOKING_PKG booking_pkg, AuthHelper authHelper, ILogger<BookingController> logger)
+        public BookingController(AuthHelper authHelper, ILogger<BookingController> logger, BookingService bookingService)
         {
-            this.booking_pkg = booking_pkg;
             this.authHelper = authHelper;
             _logger = logger;
+            this.bookingService = bookingService;
         }
 
         [HttpPost("add-booking")]
@@ -35,17 +36,8 @@ namespace Clinic_Server.Controllers
                 {
                     return StatusCode(401, new { message = "დაფიქსირდა შეცდომა", success = false });
                 }
-                var findBook = this.booking_pkg.FindBooking(booking, userId);
-                if (findBook.id != null) {
-                    return StatusCode(401, new { success = false, message = "ეს დრო უკვე დაჯავშნილი გაქვთ" });
-                }
-                var createBook = this.booking_pkg.AddBooking(booking);
-                if (createBook == null)
-                {
-                    return StatusCode(401, new { success = false, message = "დაფიქსირდა შეცდომა" });
-                }
 
-                _logger.LogInformation("Booking created successfully: {@BookingDetails}", createBook);
+                var createBook = await this.bookingService.AddBooking(booking, userId);
                 return StatusCode(200, new { book = createBook, success = true, message = "დაჯავშნა წარმატებულია", booking });
             }
             catch (Exception ex)
@@ -60,8 +52,7 @@ namespace Clinic_Server.Controllers
         {
             try
             {
-                var books = this.booking_pkg.GetBooks(startDate, endDate, doctorId);
-                _logger.LogInformation("Booking: {@BookingDetails}",books);
+                var books = await this.bookingService.Getbooks(startDate, endDate, doctorId);
 
                 return StatusCode(200, new { books, success = true });
             }
@@ -75,7 +66,7 @@ namespace Clinic_Server.Controllers
         {
             try
             {
-                var books = this.booking_pkg.GetUserBooks(userId);
+                var books = await this.bookingService.GetBookCount(userId);
 
                 return StatusCode(200, new { books, success = true });
             }
@@ -96,7 +87,7 @@ namespace Clinic_Server.Controllers
                 {
                     return StatusCode(401, new { message = "დაფიქსირდა შეცდომა", success = false });
                 }
-                var deleteBook = booking_pkg.DeleteBook(userId, bookId);
+                var deleteBook = await this.bookingService.RemoveBook(userId, bookId);
                 if (deleteBook != true)
                 {
                     return StatusCode(401, new { message = deleteBook, success = false });
@@ -122,7 +113,7 @@ namespace Clinic_Server.Controllers
                 {
                     return StatusCode(401, new { message = "დაფიქსირდა შეცდომა", success = false });
                 }
-                var deleteBooks = booking_pkg.DeleteBooks(startDate, endDate, userId);
+                var deleteBooks = await this.bookingService.RemoveBooks(startDate, endDate, userId);
                 if (deleteBooks != true)
                 {
                     return StatusCode(401, new { message = deleteBooks, success = false });
@@ -149,19 +140,7 @@ namespace Clinic_Server.Controllers
                 {
                     return StatusCode(401, new { message = "დაფიქსირდა შეცდომა", success = false });
                 }
-
-                var findBook = this.booking_pkg.FindBooking(booking, userId);
-                if (findBook.id != null)
-                {
-                    return StatusCode(401, new { success = false, message = "ეს დრო უკვე დაჯავშნილი გაქვთ" });
-                }
-                var findRecieverBook = this.booking_pkg.FindBooking(booking, receiverId);
-                if (findRecieverBook.id != null)
-                {
-                    return StatusCode(401, new { success = false, message = "ეს დრო უკვე დაჯავშნილია" });
-                }
-
-                var updateBooking = this.booking_pkg.UpdateBooking(bookId, userId, booking);
+                var updateBooking = await this.bookingService.UpdateBook(bookId, userId,booking, receiverId);
 
                 return StatusCode(200, new {success=true, book=updateBooking,message="ჯავშანი წარმატებით შეიცვალა", booking });
             }
