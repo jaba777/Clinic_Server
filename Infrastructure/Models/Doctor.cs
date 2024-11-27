@@ -1,4 +1,5 @@
-﻿namespace Clinic_Server.Models
+﻿using Microsoft.AspNetCore.Http;
+namespace Infrastructure.Models
 {
     public class Doctor
     {

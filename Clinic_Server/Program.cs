@@ -1,13 +1,16 @@
 
-using Clinic_Server.Data;
+using Infrastructure.Data;
+using Infrastructure.Redis;
 using Clinic_Server.Helper;
-using Clinic_Server.Services;
+//using Clinic_Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using StackExchange.Redis;
 using System.Text;
+using Application.Services;
 
 namespace Clinic_Server
 {
@@ -38,10 +41,12 @@ namespace Clinic_Server
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            //builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("Redis"));
+            //builder.Services.AddSingleton<IRedisService, RedisService>();
             builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("Redis"));
             builder.Services.AddSingleton<IRedisService, RedisService>();
 
-            
+
 
             builder.Services.AddSwaggerGen(c =>
             {

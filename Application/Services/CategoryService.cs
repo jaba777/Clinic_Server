@@ -1,16 +1,16 @@
-﻿using Clinic_Server.Data;
-using Clinic_Server.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Infrastructure.Data;
+using Infrastructure.Models;
 
-namespace Clinic_Server.Services
+namespace Application.Services
 {
     public class CategoryService
     {
         CATEGORY_PKG category_pkg;
-        public CategoryService(CATEGORY_PKG category_pkg) {
+        public CategoryService(CATEGORY_PKG category_pkg)
+        {
             this.category_pkg = category_pkg;
         }
-        async public Task<CategoryResult> FindCategories(string? search,int page)
+        async public Task<CategoryResult> FindCategories(string? search, int page)
         {
             return this.category_pkg.FindCategory(search, page);
         }
@@ -19,6 +19,5 @@ namespace Clinic_Server.Services
         {
             return this.category_pkg.AllCategory();
         }
-
     }
 }

@@ -1,14 +1,14 @@
-﻿using Clinic_Server.Data;
-using Clinic_Server.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Infrastructure.Data;
+using Infrastructure.Models;
 
-namespace Clinic_Server.Services
+namespace Application.Services
 {
     public class BookingService
     {
         BOOKING_PKG booking_pkg;
-        public BookingService(BOOKING_PKG booking_pkg) { 
-         this.booking_pkg = booking_pkg;
+        public BookingService(BOOKING_PKG booking_pkg)
+        {
+            this.booking_pkg = booking_pkg;
         }
 
         async public Task<Booking> AddBooking(Booking booking, int userId)
@@ -27,9 +27,9 @@ namespace Clinic_Server.Services
             return createBook;
         }
 
-        async public Task<List<Booking>> Getbooks(string startDate,string endDate,int doctorId)
+        async public Task<List<Booking>> Getbooks(string startDate, string endDate, int doctorId)
         {
-            return  this.booking_pkg.GetBooks(startDate, endDate, doctorId);
+            return this.booking_pkg.GetBooks(startDate, endDate, doctorId);
         }
 
         async public Task<int> GetBookCount(int userId)
@@ -57,7 +57,7 @@ namespace Clinic_Server.Services
                 throw new ArgumentException("ეს დრო უკვე დაჯავშნილია");
             }
 
-           return this.booking_pkg.UpdateBooking(bookId, userId, booking);
+            return this.booking_pkg.UpdateBooking(bookId, userId, booking);
         }
     }
 }

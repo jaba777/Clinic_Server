@@ -1,21 +1,19 @@
-﻿using Clinic_Server.Data;
-using Clinic_Server.Helper;
-using Clinic_Server.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Infrastructure.Data;
+using Infrastructure.Models;
 using System.Text.RegularExpressions;
 using System.Text.Json;
+using Infrastructure.Redis;
 
-namespace Clinic_Server.Services
+namespace Application.Services
 {
     public class UsersService
     {
         USER_PKG user_pkg;
-        private AuthHelper authHelper;
         private IRedisService redisService;
         private EmailService emailService;
-        public UsersService(USER_PKG user_pkg, AuthHelper authHelper, IRedisService redisService, EmailService emailService) {
-          this.user_pkg = user_pkg;
-            this.authHelper = authHelper;
+        public UsersService(USER_PKG user_pkg,IRedisService redisService, EmailService emailService)
+        {
+            this.user_pkg = user_pkg;
             this.redisService = redisService;
             this.emailService = emailService;
         }
@@ -42,7 +40,7 @@ namespace Clinic_Server.Services
                 if (!Regex.IsMatch(request.password, regexPattern))
                 {
                     throw new ArgumentException("პაროლი არავალიდურია");
-                    
+
                 }
                 else
                 {
@@ -96,7 +94,7 @@ namespace Clinic_Server.Services
             if (finduser == null)
             {
                 throw new ArgumentException("ექაუნთი ვერ მოიძებნა");
-                
+
             }
 
 
@@ -141,7 +139,7 @@ namespace Clinic_Server.Services
             if (userCache.IsNull)
             {
                 throw new ArgumentException("დრო ამოიწურა, სცადეთ თავიდან");
-                
+
             }
 
             var getOtp = JsonSerializer.Deserialize<OtpData>(userCache.ToString());
@@ -157,7 +155,7 @@ namespace Clinic_Server.Services
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.password);
 
-             return user_pkg.ChangePassword(request.email, passwordHash);
+            return user_pkg.ChangePassword(request.email, passwordHash);
         }
     }
 }

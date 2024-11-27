@@ -1,7 +1,7 @@
-﻿using Clinic_Server.Data;
+﻿using Infrastructure.Data;
 using Clinic_Server.Helper;
-using Clinic_Server.Models;
-using Clinic_Server.Services;
+using Infrastructure.Models;
+using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +11,7 @@ using Org.BouncyCastle.Asn1.Ocsp;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Infrastructure.Redis;
 
 namespace Clinic_Server.Controllers
 {

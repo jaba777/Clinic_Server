@@ -1,12 +1,12 @@
-﻿using Clinic_Server.Data;
+﻿using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Clinic_Server.Models;
+using Infrastructure.Models;
 using Microsoft.AspNetCore.Authorization;
 using Clinic_Server.Helper;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.Extensions.Logging;
-using Clinic_Server.Services;
+using Application.Services;
 
 namespace Clinic_Server.Controllers
 {

@@ -1,4 +1,6 @@
-﻿namespace Clinic_Server.Data
+﻿
+using Microsoft.Extensions.Configuration;
+namespace Infrastructure.Data
 {
     public class AddDbContext
     {

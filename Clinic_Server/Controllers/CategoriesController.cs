@@ -1,7 +1,7 @@
-﻿using Clinic_Server.Data;
+﻿using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Clinic_Server.Services;
+using Application.Services;
 
 namespace Clinic_Server.Controllers
 {

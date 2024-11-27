@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Clinic_Server.Services
+namespace Infrastructure.Redis
 {
     public class RedisOptions
     {
@@ -10,15 +10,13 @@ namespace Clinic_Server.Services
         public string Password { get; set; }
         public int DefaultDatabase { get; set; }
     }
-
     public interface IRedisService
     {
         IDatabase GetDatabase(int? db = null);
     }
-    public class RedisService:IRedisService
+    public class RedisService : IRedisService
     {
         private readonly ConnectionMultiplexer _redisConnection;
-
         public RedisService(IOptions<RedisOptions> options)
         {
             var configurationOptions = new ConfigurationOptions
@@ -30,11 +28,9 @@ namespace Clinic_Server.Services
 
             _redisConnection = ConnectionMultiplexer.Connect(configurationOptions);
         }
-
         public IDatabase GetDatabase(int? db = null)
         {
             return _redisConnection.GetDatabase(db ?? -1);
         }
     }
 }
-

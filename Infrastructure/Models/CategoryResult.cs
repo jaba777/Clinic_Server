@@ -1,6 +1,5 @@
-﻿using Clinic_Server.Models;
-
-namespace Clinic_Server.Services
+﻿
+namespace Infrastructure.Models
 {
     public class CategoryResult
     {

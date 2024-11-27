@@ -1,6 +1,6 @@
 ﻿
 
-namespace Clinic_Server.Models
+namespace Infrastructure.Models
 {
     public class Users
     {

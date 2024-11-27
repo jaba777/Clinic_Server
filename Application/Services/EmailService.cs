@@ -1,10 +1,8 @@
 ﻿using MimeKit;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Configuration;
-using System.IO;
-using System.Threading.Tasks;
 
-namespace Clinic_Server.Services
+namespace Application.Services
 {
     public class EmailService
     {

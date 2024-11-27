@@ -1,10 +1,11 @@
-﻿using Clinic_Server.Models;
-using Clinic_Server.Services;
+﻿
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
 using System.Data;
+using Microsoft.Extensions.Configuration;
+using Infrastructure.Models;
 
-namespace Clinic_Server.Data
+namespace Infrastructure.Data
 {
     public class CATEGORY_PKG : AddDbContext
     {

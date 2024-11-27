@@ -1,9 +1,10 @@
 ﻿
-using Clinic_Server.Models;
-using Clinic_Server.Services;
+using Infrastructure.Models;
+using Application.Services;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Infrastructure.Redis;
 namespace Clinic_Server.Helper
 {
     public class RegisterHelper
@@ -14,6 +15,7 @@ namespace Clinic_Server.Helper
         {
             this.redisService = redisService;
             this.emailService = emailService;
+           
         }
 
         async public Task<bool> Register(Users request)

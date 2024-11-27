@@ -1,10 +1,11 @@
-﻿using Clinic_Server.Data;
+﻿using Infrastructure.Data;
 using Clinic_Server.Helper;
-using Clinic_Server.Models;
-using Clinic_Server.Services;
+using Infrastructure.Models;
+using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Google.Apis.Auth;
+using Infrastructure.Redis;
 
 namespace Clinic_Server.Controllers
 {

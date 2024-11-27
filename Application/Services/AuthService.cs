@@ -1,17 +1,16 @@
-﻿using Clinic_Server.Data;
-using Clinic_Server.Helper;
-using Clinic_Server.Models;
-using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Ocsp;
+﻿using Infrastructure.Data;
+using Infrastructure.Models;
 
-namespace Clinic_Server.Services
+namespace Application.Services
 {
     public class AuthService
     {
         private USER_PKG user_pkg;
-        public AuthService(USER_PKG user_pkg) {
+        public AuthService(USER_PKG user_pkg)
+        {
             this.user_pkg = user_pkg;
         }
+
         async public Task<bool> RegisterDoctor(Doctor request)
         {
             if (string.IsNullOrEmpty(request.email))
@@ -21,7 +20,7 @@ namespace Clinic_Server.Services
             var finduser = user_pkg.FindUser(request.email);
             if (finduser != null)
             {
-                 throw new ArgumentException("ამ მეილით ექაუნთი უკვე შექმნილია");
+                throw new ArgumentException("ამ მეილით ექაუნთი უკვე შექმნილია");
             }
 
             byte[] photoBytes;

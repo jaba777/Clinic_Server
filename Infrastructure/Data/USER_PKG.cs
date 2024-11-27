@@ -1,12 +1,11 @@
-﻿using Clinic_Server.Models;
+﻿using Infrastructure.Models;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
-using Org.BouncyCastle.Asn1.Ocsp;
-using StackExchange.Redis;
 using System.Data;
 using System.Xml.Linq;
+using Microsoft.Extensions.Configuration;
 
-namespace Clinic_Server.Data
+namespace Infrastructure.Data
 {
     public class USER_PKG : AddDbContext
     {
